@@ -6,8 +6,11 @@ import { BlogSection } from '@/components/BlogSection';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import { useSearchParams } from 'react-router-dom';
 
 const StreamPage = () => {
+  const [searchParams] = useSearchParams();
+  const videoId = searchParams.get('videoId') || 'dQw4w9WgXcQ';
   const streamer = {
     name: 'ProGamer_XZ',
     avatar: 'https://cdn.poehali.dev/projects/d4aeb513-7824-4365-8682-6dce03f094c9/files/0479d6e8-29a2-42fc-bfc3-c8251fdb2d60.jpg',
@@ -167,21 +170,17 @@ const StreamPage = () => {
 
         <div className="grid lg:grid-cols-3 gap-6 mb-8">
           <div className="lg:col-span-2">
-            <div className="aspect-video bg-muted rounded-lg overflow-hidden mb-6 relative group">
-              <img 
-                src="https://cdn.poehali.dev/projects/d4aeb513-7824-4365-8682-6dce03f094c9/files/18651222-b567-4256-b2e9-99244092c0fa.jpg"
-                alt="Stream"
-                className="w-full h-full object-cover"
+            <div className="aspect-video bg-black rounded-lg overflow-hidden mb-6 relative">
+              <iframe
+                className="w-full h-full"
+                src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+                title="YouTube video player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
               />
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                <Button size="lg" className="bg-primary hover:bg-primary/90 scale-100 group-hover:scale-110 transition-transform">
-                  <Icon name="Play" size={24} className="mr-2" />
-                  Начать трансляцию
-                </Button>
-              </div>
-              <Badge className="absolute top-4 left-4 bg-destructive text-destructive-foreground">
+              <Badge className="absolute top-4 left-4 bg-destructive text-destructive-foreground z-10">
                 <Icon name="Circle" size={8} className="mr-2 fill-current" />
-                LIVE • 12,547 зрителей
+                LIVE
               </Badge>
             </div>
 

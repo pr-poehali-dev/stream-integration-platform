@@ -5,8 +5,36 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
 const Index = () => {
+  const [streams, setStreams] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState('gaming');
+
+  useEffect(() => {
+    const fetchStreams = async () => {
+      setLoading(true);
+      try {
+        const gameParam = selectedCategory === 'все' ? 'gaming' : selectedCategory;
+        const response = await fetch(
+          `https://functions.poehali.dev/542b8dcd-ac9f-4c58-9ec2-7f19c0af5239?game=${gameParam}`
+        );
+        const data = await response.json();
+        
+        if (data.streams) {
+          setStreams(data.streams);
+        }
+      } catch (error) {
+        console.error('Failed to fetch streams:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStreams();
+  }, [selectedCategory]);
+
   const featuredStreams = [
     {
       id: '1',
@@ -149,9 +177,12 @@ const Index = () => {
         </section>
 
         <section className="mb-8">
-          <Tabs defaultValue="all" className="w-full">
+          <Tabs defaultValue="все" className="w-full" onValueChange={(value) => setSelectedCategory(value)}>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold">Популярные трансляции</h2>
+              <h2 className="text-2xl font-bold">
+                Живые трансляции 
+                {streams.length > 0 && <span className="text-primary ml-2">({streams.length})</span>}
+              </h2>
               <TabsList className="bg-muted">
                 {categories.map((cat) => (
                   <TabsTrigger 
@@ -166,29 +197,39 @@ const Index = () => {
               </TabsList>
             </div>
 
-            <TabsContent value="все" className="mt-0">
+            {loading ? (
+              <div className="flex items-center justify-center py-16">
+                <Icon name="Loader2" size={48} className="animate-spin text-primary" />
+              </div>
+            ) : streams.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {featuredStreams.map((stream) => (
-                  <Link key={stream.id} to="/stream">
-                    <StreamCard {...stream} />
+                {streams.map((stream) => (
+                  <Link 
+                    key={stream.id} 
+                    to={`/stream?videoId=${stream.id}`}
+                  >
+                    <StreamCard 
+                      id={stream.id}
+                      title={stream.title}
+                      streamerName={stream.streamerName}
+                      streamerAvatar="https://cdn.poehali.dev/projects/d4aeb513-7824-4365-8682-6dce03f094c9/files/0479d6e8-29a2-42fc-bfc3-c8251fdb2d60.jpg"
+                      thumbnail={stream.thumbnail}
+                      viewerCount={Math.floor(Math.random() * 10000) + 100}
+                      category={stream.category}
+                      isLive={stream.isLive}
+                    />
                   </Link>
                 ))}
               </div>
-            </TabsContent>
-
-            {categories.slice(1).map((cat) => (
-              <TabsContent key={cat.name} value={cat.name.toLowerCase()} className="mt-0">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {featuredStreams
-                    .filter((s) => s.category.toLowerCase().includes(cat.name.toLowerCase()))
-                    .map((stream) => (
-                      <Link key={stream.id} to="/stream">
-                        <StreamCard {...stream} />
-                      </Link>
-                    ))}
-                </div>
-              </TabsContent>
-            ))}
+            ) : (
+              <div className="text-center py-16">
+                <Icon name="TvMinimalPlay" size={64} className="mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-xl font-semibold mb-2">Нет активных стримов</h3>
+                <p className="text-muted-foreground">
+                  Попробуйте выбрать другую категорию или добавьте YouTube API ключ
+                </p>
+              </div>
+            )}
           </Tabs>
         </section>
 

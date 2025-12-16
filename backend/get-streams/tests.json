@@ -1,0 +1,30 @@
+{
+  "tests": [
+    {
+      "name": "Получение стримов по умолчанию",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "streams": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Получение стримов CS2",
+      "method": "GET",
+      "path": "/?game=cs2",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "streams": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "OPTIONS запрос для CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}
