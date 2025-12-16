@@ -118,13 +118,17 @@ const Index = () => {
             </div>
             
             <div className="flex items-center gap-3">
-              <Button variant="outline">
-                <Icon name="User" size={18} className="mr-2" />
-                Войти
+              <Button variant="outline" asChild>
+                <Link to="/login">
+                  <Icon name="User" size={18} className="mr-2" />
+                  Войти
+                </Link>
               </Button>
-              <Button className="bg-primary hover:bg-primary/90">
-                <Icon name="Video" size={18} className="mr-2" />
-                Начать стрим
+              <Button className="bg-primary hover:bg-primary/90" asChild>
+                <Link to="/dashboard">
+                  <Icon name="Video" size={18} className="mr-2" />
+                  Начать стрим
+                </Link>
               </Button>
             </div>
           </div>
