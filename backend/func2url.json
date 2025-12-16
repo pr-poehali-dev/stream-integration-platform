@@ -1,4 +1,5 @@
 {
+  "donations": "https://functions.poehali.dev/ca7d4a05-6576-4a0a-95eb-428321ed00c8",
   "auth": "https://functions.poehali.dev/fbc84d01-14fa-423f-896d-1124a014e769",
   "get-streams": "https://functions.poehali.dev/542b8dcd-ac9f-4c58-9ec2-7f19c0af5239"
 }

@@ -3,8 +3,10 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Donation {
   id: string;
@@ -17,13 +19,84 @@ interface Donation {
 
 interface DonationSectionProps {
   topDonations: Donation[];
+  streamerId?: number;
 }
 
-export const DonationSection = ({ topDonations }: DonationSectionProps) => {
+export const DonationSection = ({ topDonations, streamerId = 1 }: DonationSectionProps) => {
   const [amount, setAmount] = useState('');
   const [message, setMessage] = useState('');
+  const [donorName, setDonorName] = useState('');
+  const [donorEmail, setDonorEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const quickAmounts = [100, 300, 500, 1000];
+
+  const handleDonate = async () => {
+    if (!amount || parseFloat(amount) < 10) {
+      toast({
+        title: 'Ошибка',
+        description: 'Минимальная сумма доната 10 ₽',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    if (!donorName.trim()) {
+      toast({
+        title: 'Ошибка',
+        description: 'Укажите ваше имя',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/ca7d4a05-6576-4a0a-95eb-428321ed00c8', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          streamer_id: streamerId,
+          amount: parseFloat(amount),
+          donor_name: donorName,
+          donor_email: donorEmail,
+          message: message,
+          return_url: window.location.href
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.payment_url) {
+        toast({
+          title: 'Перенаправление на оплату',
+          description: 'Сейчас откроется страница оплаты...',
+        });
+        
+        setTimeout(() => {
+          window.location.href = data.payment_url;
+        }, 1000);
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Не удалось создать платеж',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка подключения',
+        description: 'Не удалось связаться с сервером',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -35,7 +108,29 @@ export const DonationSection = ({ topDonations }: DonationSectionProps) => {
 
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium mb-2 block">Сумма доната</label>
+            <Label className="mb-2 block">Ваше имя</Label>
+            <Input
+              type="text"
+              placeholder="Как вас зовут?"
+              value={donorName}
+              onChange={(e) => setDonorName(e.target.value)}
+              className="bg-card"
+            />
+          </div>
+
+          <div>
+            <Label className="mb-2 block">Email (необязательно)</Label>
+            <Input
+              type="email"
+              placeholder="your@email.com"
+              value={donorEmail}
+              onChange={(e) => setDonorEmail(e.target.value)}
+              className="bg-card"
+            />
+          </div>
+
+          <div>
+            <Label className="mb-2 block">Сумма доната</Label>
             <div className="flex gap-2 mb-3">
               {quickAmounts.map((value) => (
                 <Button
@@ -51,7 +146,7 @@ export const DonationSection = ({ topDonations }: DonationSectionProps) => {
             </div>
             <Input
               type="number"
-              placeholder="Или введите свою сумму"
+              placeholder="Или введите свою сумму (мин. 10 ₽)"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               className="bg-card"
@@ -59,7 +154,7 @@ export const DonationSection = ({ topDonations }: DonationSectionProps) => {
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block">Сообщение (необязательно)</label>
+            <Label className="mb-2 block">Сообщение (необязательно)</Label>
             <Textarea
               placeholder="Оставьте сообщение стримеру..."
               value={message}
@@ -69,9 +164,23 @@ export const DonationSection = ({ topDonations }: DonationSectionProps) => {
             />
           </div>
 
-          <Button className="w-full bg-primary hover:bg-primary/90" size="lg">
-            <Icon name="CreditCard" size={18} className="mr-2" />
-            Отправить донат
+          <Button 
+            className="w-full bg-primary hover:bg-primary/90" 
+            size="lg"
+            onClick={handleDonate}
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
+                Создание платежа...
+              </>
+            ) : (
+              <>
+                <Icon name="CreditCard" size={18} className="mr-2" />
+                Отправить донат
+              </>
+            )}
           </Button>
         </div>
       </Card>
