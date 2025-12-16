@@ -2,6 +2,7 @@ import { StreamerProfile } from '@/components/StreamerProfile';
 import { StreamChat } from '@/components/StreamChat';
 import { GiveawaySection } from '@/components/GiveawaySection';
 import { DonationSection } from '@/components/DonationSection';
+import { DonationAlert } from '@/components/DonationAlert';
 import { BlogSection } from '@/components/BlogSection';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +12,7 @@ import { useSearchParams } from 'react-router-dom';
 const StreamPage = () => {
   const [searchParams] = useSearchParams();
   const videoId = searchParams.get('videoId') || 'dQw4w9WgXcQ';
+  const streamerId = 1;
   const streamer = {
     name: 'ProGamer_XZ',
     avatar: 'https://cdn.poehali.dev/projects/d4aeb513-7824-4365-8682-6dce03f094c9/files/0479d6e8-29a2-42fc-bfc3-c8251fdb2d60.jpg',
@@ -137,6 +139,8 @@ const StreamPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <DonationAlert streamerId={streamerId} />
+      
       <header className="sticky top-0 z-50 bg-card border-b border-border backdrop-blur-lg bg-card/80">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -199,7 +203,7 @@ const StreamPage = () => {
 
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2"></div>
-          <DonationSection topDonations={topDonations} />
+          <DonationSection topDonations={topDonations} streamerId={streamerId} />
         </div>
       </main>
     </div>

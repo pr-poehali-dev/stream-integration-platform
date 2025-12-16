@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import Icon from '@/components/ui/icon';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RecentDonations } from '@/components/RecentDonations';
 
 interface User {
   id: number;
@@ -219,6 +220,8 @@ const Dashboard = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              <RecentDonations streamerId={1} />
             </div>
           </TabsContent>
 
